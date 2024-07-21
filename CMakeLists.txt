@@ -3,4 +3,4 @@ project(HW2 C)
 
 set(CMAKE_C_STANDARD 90)
 
-add_executable(HW2 kmeansmodule.c)
+add_executable(HW2 kmeanslib.h kmeansmodule.c kmeans.c)
