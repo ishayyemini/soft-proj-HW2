@@ -1,8 +1,8 @@
-#define err(x) { printf(x); free_memory(points, size, centroids, k); exit(1); }
-#define err_k(x) { printf(x); free_memory_k(new_centroids, clusters, k, c_sizes); exit(1); }
+#define err_top { free_memory(points, size, centroids, k); return NULL; }
+#define err_k { free_memory_k(new_centroids, clusters, k, c_sizes); return 1; }
 
-# define PY_SSIZE_T_CLEAN
-#include "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Headers/Python.h"
+#define PY_SSIZE_T_CLEAN
+#include "Python.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -63,13 +63,13 @@ int kmeans(double **points, int size, double ***centroids, int k, int iter, doub
     new_centroids = calloc(k, sizeof(double *));
     clusters = calloc(k, sizeof(double **)); /* 2d array of pointers to elements in points */
     c_sizes = calloc(k, sizeof(int)); /* storing cluster lengths for appending new elements */
-    if (new_centroids == NULL || clusters == NULL || c_sizes == NULL) err_k("An Error Has Occurred\n")
+    if (new_centroids == NULL || clusters == NULL || c_sizes == NULL) err_k
 
 
     for (i = 0; i < k; ++i) {
         new_centroids[i] = calloc(dimension, sizeof(double));
         clusters[i] = calloc(size, sizeof(double *));
-        if (new_centroids[i] == NULL || clusters[i] == NULL) err_k("An Error Has Occurred\n")
+        if (new_centroids[i] == NULL || clusters[i] == NULL) err_k
     }
 
     for (iter_i = 0; iter_i < iter; iter_i++) {
@@ -90,7 +90,6 @@ int kmeans(double **points, int size, double ***centroids, int k, int iter, doub
             clusters[closest][c_sizes[closest]++] = points[i];
         }
 
-
         /* calculate new centroids */
         max_cent_dist = 0;
         for (i = 0; i < k; i++) {
@@ -101,18 +100,7 @@ int kmeans(double **points, int size, double ***centroids, int k, int iter, doub
             for (j = 0; j < dimension; j++) (*centroids)[i][j] = new_centroids[i][j];
         }
 
-        if (max_cent_dist < eps) {
-            break;
-        }
-    }
-
-    /* printing the centroids */
-    for (i = 0; i < k; i++) {
-        for (j = 0; j < dimension; j++) {
-            printf("%.4f", (*centroids)[i][j]);
-            if (j != dimension - 1) printf(",");
-        }
-        printf("\n");
+        if (max_cent_dist < eps) break;
     }
 
     /* memory de-allocation */
@@ -133,10 +121,10 @@ static PyObject *KMeansLib_Fit(PyObject *self, PyObject *args) {
     double **points = NULL;
     double **centroids = NULL;
     int i, j;
+    int res;
 
-    if (!PyArg_ParseTuple(args, "OOid", &p_points, &p_centroids, &iter, &eps)) {
+    if (!PyArg_ParseTuple(args, "OOid", &p_points, &p_centroids, &iter, &eps))
         return NULL;
-    }
 
     size = PyObject_Length(p_points);
     if (size < 0) return NULL;
@@ -145,7 +133,7 @@ static PyObject *KMeansLib_Fit(PyObject *self, PyObject *args) {
     if (k < 0) return NULL;
 
     points = calloc(size, sizeof(double *));
-    if (points == NULL) err("An Error Has Occurred\n")
+    if (points == NULL) err_top
     for (i = 0; i < size; i++) {
         p_point = PyList_GetItem(p_points, i);
         if (dimension == 0) dimension = PyObject_Length(p_point);
@@ -159,7 +147,7 @@ static PyObject *KMeansLib_Fit(PyObject *self, PyObject *args) {
     }
 
     centroids = calloc(k, sizeof(double *));
-    if (centroids == NULL) err("An Error Has Occurred\n")
+    if (centroids == NULL) err_top
     for (i = 0; i < k; i++) {
         centroids[i] = calloc(dimension, sizeof(double));
         p_point = PyList_GetItem(p_centroids, i);
@@ -169,11 +157,23 @@ static PyObject *KMeansLib_Fit(PyObject *self, PyObject *args) {
         }
     }
 
-    kmeans(points, size, &centroids, k, iter, eps, dimension);
+    res = kmeans(points, size, &centroids, k, iter, eps, dimension);
+    if (res != 0) err_top
+
+    p_centroids = PyList_New(k);
+    for (i = 0; i < k; i++) {
+        p_point = PyList_New(dimension);
+        for (j = 0; j < dimension; j++) {
+            p_coord = Py_BuildValue("d", centroids[i][j]);
+            PyList_SetItem(p_point, j, p_coord);
+        }
+        PyList_SetItem(p_centroids, i, p_point);
+    }
+
 
     free_memory(points, size, centroids, k);
 
-    return Py_BuildValue("i", 5);
+    return p_centroids;
 }
 
 static PyMethodDef KMeansLib_FunctionsTable[] = {

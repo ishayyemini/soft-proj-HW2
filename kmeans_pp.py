@@ -77,11 +77,13 @@ try:
     centroids = [points.iloc[i].tolist()[:-1] for i in c_indices]
     c_points = [p.tolist()[:-1] for p in points.iloc]
 
-    km.fit(c_points, centroids, iter_num, eps)
+    centroids = km.fit(c_points, centroids, iter_num, eps)
+    if len(centroids) == 0:
+        sys.exit(1)
 
-    # print(",".join([str(i) for i in c_indices]))
-    # for centroid in centroids:
-    #     print(",".join(["%.4f" % coord for coord in centroid]))
+    print(",".join([str(i) for i in c_indices]))
+    for centroid in centroids:
+        print(",".join(["%.4f" % coord for coord in centroid]))
 
 except:
     print(error_msg)
