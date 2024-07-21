@@ -1,7 +1,7 @@
 import sys
-
 import numpy as np
 import pandas as pd
+import kmeanssp as km
 
 
 def parse_int(num):
@@ -75,33 +75,10 @@ try:
         c_indices.append(next_point)
 
     centroids = [points.iloc[i].tolist()[:-1] for i in c_indices]
+    c_points = [p.tolist()[:-1] for p in points.iloc]
 
-    print(centroids)
+    km.fit(c_points, centroids, iter_num, eps)
 
-    # for iter_i in range(int(iter_num)):
-    #     # clear previous clusters
-    #     clusters = [[] for _ in range(k)]
-    #     # reset pointer for file reading
-    #
-    #     for point in points.iloc:
-    #         point = point.to_numpy()[:-1]
-    #         distances = [np.linalg.norm(point - centroids[i]) for i in range(k)]
-    #         closest = min(range(k), key=lambda x: distances[x])
-    #         clusters[closest].append(point)
-    #
-    #     # calculating new centroids for checking convergence
-    #     new_centroids = [
-    #         np.array([sum(coord) / len(cluster) for coord in zip(*cluster)])
-    #         for cluster in clusters
-    #     ]
-    #
-    #     # if max convergence for all new centroids is less than epsilon then the condition applies for all
-    #     if max(np.linalg.norm(centroids[i] - new_centroids[i]) for i in range(k)) < eps:
-    #         centroids = new_centroids
-    #         break
-    #
-    #     centroids = new_centroids
-    #
     # print(",".join([str(i) for i in c_indices]))
     # for centroid in centroids:
     #     print(",".join(["%.4f" % coord for coord in centroid]))
