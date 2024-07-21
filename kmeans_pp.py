@@ -4,10 +4,6 @@ import numpy as np
 import pandas as pd
 
 
-def euclidean_distance(point1, point2):
-    return sum((point1[d] - point2[d]) ** 2 for d in range(len(point1))) ** 0.5
-
-
 def parse_int(num):
     try:
         return int(float(num)) if int(float(num)) == float(num) else 0
@@ -67,10 +63,7 @@ try:
     for i in range(1, k):
         points["D"] = points.apply(
             lambda x: min(
-                euclidean_distance(
-                    x.values.tolist()[:-1], points.iloc[i].values.tolist()[:-1]
-                )
-                for i in c_indices
+                np.linalg.norm(x[:-1] - points.iloc[i][:-1]) for i in c_indices
             ),
             axis=1,
         )
@@ -81,38 +74,37 @@ try:
         ).tolist()[0]
         c_indices.append(next_point)
 
-    centroids = [points.iloc[i].values.tolist()[:-1] for i in c_indices]
+    centroids = [points.iloc[i].tolist()[:-1] for i in c_indices]
 
-    for iter_i in range(int(iter_num)):
-        # clear previous clusters
-        clusters = [[] for _ in range(k)]
-        # reset pointer for file reading
+    print(centroids)
 
-        for point in points.iloc:
-            point = point.tolist()[:-1]
-            distances = [euclidean_distance(point, centroids[i]) for i in range(k)]
-            closest = min(range(k), key=lambda x: distances[x])
-            clusters[closest].append(point)
-
-        # calculating new centroids for checking convergence
-        new_centroids = [
-            tuple(sum(coord) / len(cluster) for coord in zip(*cluster))
-            for cluster in clusters
-        ]
-
-        # if max convergence for all new centroids is less than epsilon then the condition applies for all
-        if (
-            max(euclidean_distance(centroids[i], new_centroids[i]) for i in range(k))
-            < eps
-        ):
-            centroids = new_centroids
-            break
-
-        centroids = new_centroids
-
-    print(",".join([str(i) for i in c_indices]))
-    for centroid in centroids:
-        print(",".join(["%.4f" % coord for coord in centroid]))
+    # for iter_i in range(int(iter_num)):
+    #     # clear previous clusters
+    #     clusters = [[] for _ in range(k)]
+    #     # reset pointer for file reading
+    #
+    #     for point in points.iloc:
+    #         point = point.to_numpy()[:-1]
+    #         distances = [np.linalg.norm(point - centroids[i]) for i in range(k)]
+    #         closest = min(range(k), key=lambda x: distances[x])
+    #         clusters[closest].append(point)
+    #
+    #     # calculating new centroids for checking convergence
+    #     new_centroids = [
+    #         np.array([sum(coord) / len(cluster) for coord in zip(*cluster)])
+    #         for cluster in clusters
+    #     ]
+    #
+    #     # if max convergence for all new centroids is less than epsilon then the condition applies for all
+    #     if max(np.linalg.norm(centroids[i] - new_centroids[i]) for i in range(k)) < eps:
+    #         centroids = new_centroids
+    #         break
+    #
+    #     centroids = new_centroids
+    #
+    # print(",".join([str(i) for i in c_indices]))
+    # for centroid in centroids:
+    #     print(",".join(["%.4f" % coord for coord in centroid]))
 
 except:
     print(error_msg)
