@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 import pandas as pd
-import kmeanssp as km
+import mykmeanssp as km
 
 
 def parse_int(num):

@@ -1,9 +1,9 @@
 from setuptools import Extension, setup
 
-module = Extension("kmeanssp", sources=["kmeansmodule.c"])
+module = Extension("mykmeanssp", sources=["kmeansmodule.c"])
 
 setup(
-    name="kmeanssp",
+    name="mykmeanssp",
     version="1.0",
     description="Integrate KMeans between Python and C",
     ext_modules=[module],

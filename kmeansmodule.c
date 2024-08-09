@@ -190,12 +190,12 @@ static PyMethodDef KMeansLib_FunctionsTable[] = {
 
 static struct PyModuleDef KMeans_Module = {
         PyModuleDef_HEAD_INIT,
-        "kmeanssp",     // name of module exposed to Python
+        "mykmeanssp",     // name of module exposed to Python
         "Integrate KMeans between Python and C", // module documentation
         -1,
         KMeansLib_FunctionsTable
 };
 
-PyMODINIT_FUNC PyInit_kmeanssp(void) {
+PyMODINIT_FUNC PyInit_mykmeanssp(void) {
     return PyModule_Create(&KMeans_Module);
 }
