@@ -74,8 +74,9 @@ try:
         ).tolist()[0]
         c_indices.append(next_point)
 
-    centroids = [points.iloc[i].tolist()[:-1] for i in c_indices]
-    c_points = [p.tolist()[:-1] for p in points.iloc]
+    points.drop("D", axis=1, inplace=True)
+    centroids = [points.iloc[i].tolist() for i in c_indices]
+    c_points = points.values.tolist()
 
     centroids = km.fit(c_points, centroids, iter_num, eps)
     if len(centroids) == 0:
