@@ -1,7 +1,10 @@
 import numpy as np
 from sklearn.datasets import load_iris
 from sklearn.cluster import k_means
+import matplotlib
 import matplotlib.pyplot as plt
+
+matplotlib.use("Agg")
 
 iris = load_iris()
 
@@ -11,7 +14,7 @@ for k in range(1, 11):
     centroids, labels, _ = k_means(iris.data, k, random_state=0, init="k-means++")
     inertia = 0
     for i in range(len(iris.data)):
-        inertia += np.pow(np.linalg.norm(centroids[labels[i]] - iris.data[i]), 2)
+        inertia += np.power(np.linalg.norm(centroids[labels[i]] - iris.data[i]), 2)
     inertia_arr.append(inertia)
 
 figure, axes = plt.subplots()
