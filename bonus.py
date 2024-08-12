@@ -2,9 +2,9 @@ import numpy as np
 from sklearn.datasets import load_iris
 from sklearn.cluster import k_means
 import matplotlib
-import matplotlib.pyplot as plt
 
 matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 iris = load_iris()
 
